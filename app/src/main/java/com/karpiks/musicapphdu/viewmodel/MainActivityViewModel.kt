@@ -1,6 +1,5 @@
 package com.karpiks.musicapphdu.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,7 +15,7 @@ internal class MainActivityViewModel : ViewModel() {
         get() = _mainActivityState
 
     init {
-        //dumbass shit to prove working of this shift
+        //prove working of this part
         viewModelScope.launch {
             for(data in 1 .. 10) {
                 delay(1000)
@@ -26,7 +25,7 @@ internal class MainActivityViewModel : ViewModel() {
     }
 
     fun doSomething() {
-        q( "doSomething: I'm useful as f*ck!")
+        q( "doSomething: I'm useful!")
     }
 
 }
