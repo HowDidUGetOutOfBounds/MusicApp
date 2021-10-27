@@ -60,7 +60,7 @@ internal class MainActivityViewModel(val localDataRepository: LocalRepo) : ViewM
     fun playNext() {
         if (loadedSongs.size > (currentSongId + 1)) {
             currentSongId++
-            pauseAudio()
+            pauseAudio(nextSong = true)
             playAudio()
         }
     }
@@ -68,7 +68,7 @@ internal class MainActivityViewModel(val localDataRepository: LocalRepo) : ViewM
     fun playPrev() {
         if (0 <= (currentSongId - 1)) {
             currentSongId--
-            pauseAudio()
+            pauseAudio(prevSong = true)
             playAudio()
         }
     }
@@ -81,10 +81,14 @@ internal class MainActivityViewModel(val localDataRepository: LocalRepo) : ViewM
         }
     }
 
-    private fun pauseAudio() {
+    private fun pauseAudio(nextSong: Boolean = false, prevSong: Boolean = false) {
         if (mediaPlayer != null) {
             mediaPlayer!!.stop()
-            playbackPosition = 0
+            playbackPosition = if (nextSong || prevSong) {
+                0
+            } else {
+                mediaPlayer!!.currentPosition
+            }
             isPlaying = false
         }
     }
@@ -95,14 +99,20 @@ internal class MainActivityViewModel(val localDataRepository: LocalRepo) : ViewM
 
         q(loadedSongs[currentSongId].trackUri)
 
-        viewModelScope.launch {
-            mediaPlayer = MediaPlayer()
-            mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer!!.setDataSource(loadedSongs[currentSongId].trackUri)
-            mediaPlayer!!.prepare() // might take long! (for buffering, etc)
-            mediaPlayer!!.start()
-            isPlaying = true
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            setDataSource(loadedSongs[currentSongId].trackUri)
+            prepare() // might take long! (for buffering, etc)
+            seekTo(playbackPosition)
+            start()
         }
+        isPlaying = true
 
 
     }
