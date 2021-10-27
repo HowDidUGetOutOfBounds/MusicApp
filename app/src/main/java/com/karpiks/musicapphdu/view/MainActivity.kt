@@ -1,6 +1,8 @@
 package com.karpiks.musicapphdu.view
 
 import android.content.res.Configuration
+import android.media.AudioManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.karpiks.musicapphdu.MyApplication

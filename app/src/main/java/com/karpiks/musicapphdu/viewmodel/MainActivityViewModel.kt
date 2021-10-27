@@ -1,6 +1,9 @@
 package com.karpiks.musicapphdu.viewmodel
 
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -82,22 +85,33 @@ internal class MainActivityViewModel(val localDataRepository: LocalRepo) : ViewM
         if (mediaPlayer != null) {
             mediaPlayer!!.stop()
             playbackPosition = 0
+            isPlaying = false
         }
     }
 
     private fun playAudio() {
+
         killMediaPlayer()
 
-        mediaPlayer = MediaPlayer()
         q(loadedSongs[currentSongId].trackUri)
-        mediaPlayer!!.setDataSource(loadedSongs[currentSongId].trackUri)
-        mediaPlayer!!.prepare()
-        mediaPlayer!!.start()
+
+        viewModelScope.launch {
+            mediaPlayer = MediaPlayer()
+            mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer!!.setDataSource(loadedSongs[currentSongId].trackUri)
+            mediaPlayer!!.prepare() // might take long! (for buffering, etc)
+            mediaPlayer!!.start()
+            isPlaying = true
+        }
+
+
     }
 
     private fun killMediaPlayer() {
         if (mediaPlayer != null) {
             try {
+                mediaPlayer!!.stop()
+                mediaPlayer!!.reset()
                 mediaPlayer!!.release()
             } catch (e: Exception) {
                 e.printStackTrace()
