@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.bumptech.glide.Glide
 import com.karpiks.musicapphdu.MyApplication
 import com.karpiks.musicapphdu.databinding.ActivityMainBinding
 import com.karpiks.musicapphdu.model.MainActivityState
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(binding.root)
 
-        viewModel = MainActivityViewModel ((application as MyApplication).localDataRepository)
+        viewModel = MainActivityViewModel((application as MyApplication).localDataRepository)
 
         viewModel.mainActivityState!!.observe(this) { state ->
             when (state) {
@@ -30,12 +31,15 @@ class MainActivity : AppCompatActivity() {
                 }
                 MainActivityState.Next -> {
                     viewModel.playNext()
+                    loadUI()
                 }
                 MainActivityState.PlayPause -> {
                     viewModel.playPause()
+                    loadUI()
                 }
                 MainActivityState.Prev -> {
                     viewModel.playPrev()
+                    loadUI()
                 }
             }
         }
@@ -50,6 +54,16 @@ class MainActivity : AppCompatActivity() {
             viewModel.mainActivityState?.value = MainActivityState.PlayPause
         }
 
+    }
+
+    private fun loadUI() {
+        val currentSong = viewModel.loadedSongs[viewModel.currentSongId]
+
+        binding.title.text = currentSong.title
+        binding.artist.text = currentSong.artist
+        Glide.with(applicationContext)
+            .load(currentSong.bitmapUri)
+            .into(binding.songBitmap)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
